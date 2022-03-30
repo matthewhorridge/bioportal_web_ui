@@ -26,7 +26,7 @@ gem 'select2-rails'
 
 gem 'cube-ruby', require: 'cube'
 gem 'dalli'
-gem 'faraday', '1.9.3'
+gem 'faraday', '1.5.0'
 gem 'flamegraph'
 gem 'haml', '~> 5.1'
 gem 'i18n'
