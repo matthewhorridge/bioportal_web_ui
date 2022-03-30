@@ -26,6 +26,7 @@ gem 'select2-rails'
 
 gem 'cube-ruby', require: 'cube'
 gem 'dalli'
+gem 'faraday', '1.9.3'
 gem 'flamegraph'
 gem 'haml', '~> 5.1'
 gem 'i18n'
@@ -46,7 +47,7 @@ gem 'stackprof', require: false
 gem 'thin'
 gem 'will_paginate', '~> 3.0'
 
-gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.1.0'
+gem 'ontologies_api_client', github: 'ncbo/ontologies_api_ruby_client', tag: 'v2.0.3'
 
 group :staging, :production do
   # application monitoring
