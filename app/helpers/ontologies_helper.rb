@@ -191,6 +191,35 @@ module OntologiesHelper
     end
   end
 
+  # Full-window toggle for the class browser, shown in the concept details tab
+  # strip beside the JSON button. Clicking it bubbles to the fullscreen-pane
+  # Stimulus controller on #bd_content (see fullscreen_pane_controller.js), which
+  # expands the tree + details to fill the window. The icon swaps between the two
+  # SVGs below via the .bd-content--fullscreen class on the ancestor; the
+  # controller updates the title/aria-label to the state-specific string.
+  def fullscreen_pane_button
+    # Two inline SVGs, one shown per state (CSS in ontologies.scss keys off the
+    # ancestor's .bd-content--fullscreen class): outward "expand" arrows normally,
+    # inward "contract" arrows (the mirror, reading as restore rather than
+    # close/delete) when full-window.
+    expand = <<~SVG.html_safe
+      <svg class="bd-content__fs-icon bd-content__fs-icon--expand" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H4v5M20 9V4h-5M4 15v5h5M15 20h5v-5"/></svg>
+    SVG
+    contract = <<~SVG.html_safe
+      <svg class="bd-content__fs-icon bd-content__fs-icon--contract" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M4 15h5v5M15 20v-5h5"/></svg>
+    SVG
+    content_tag(:button, expand + contract,
+                type: 'button',
+                class: 'bd-content__fullscreen-btn mx-2',
+                title: t('concepts.maximise'),
+                'aria-label': t('concepts.maximise'),
+                data: {
+                  action: 'click->fullscreen-pane#toggle',
+                  'enter-label': t('concepts.maximise'),
+                  'exit-label': t('concepts.minimise')
+                })
+  end
+
   # The tab ids of the inner concept views, in _show.html.haml order. The default
   # (first) is used when the `view` param is missing or is not one of these — so a
   # stale/typo'd/bogus value falls back to Details rather than leaving every tab
@@ -216,13 +245,20 @@ module OntologiesHelper
 
   # url_parameter/merge_url_params default to leaving the URL alone; only the concept
   # views opt in (see concepts/_show.html.haml).
+  #
+  # fullscreen_toggle: render the full-window toggle button. Only the class browser
+  # (concepts/_show.html.haml) is inside the fullscreen-pane controller, so only it
+  # opts in; the schemes/collections details tabs (ontology_object_details_component)
+  # leave it off, where the button would be a dead control.
   def ontology_object_tabs_component(ontology_id:, objects_title:, object_id:,
-                                     url_parameter: nil, merge_url_params: false, &block)
+                                     url_parameter: nil, merge_url_params: false,
+                                     fullscreen_toggle: false, &block)
     resource_url = ontology_object_json_link(ontology_id, objects_title, object_id)
     render TabsContainerComponent.new(type: 'outline', url_parameter: url_parameter,
                                       merge_url_params: merge_url_params) do |c|
       concat(c.with_pinned_right do
-        content_tag(:div, '', class: 'd-flex', 'data-concepts-json-target': 'button') do
+        content_tag(:div, '', class: 'd-flex align-items-center', 'data-concepts-json-target': 'button') do
+          concat(fullscreen_pane_button) if fullscreen_toggle
           concat(render_permalink_link) if $PURL_ENABLED
           concat(render_concepts_json_button(resource_url))
         end
