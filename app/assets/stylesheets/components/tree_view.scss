@@ -41,6 +41,54 @@
     }
 }
 
+// Root-set control: an inline radio group as a FOOTER below the scrolling tree.
+// #sd_content flexes to fill, so this stays pinned at the bottom of the pane.
+// Both options ("Preferred roots" / "All roots") are always visible, so it's
+// clear the tree is trimmed to the ontology's preferred (IAO:0000700) roots by
+// default and that the full set is available. Plain native radios (accent-colour
+// brand blue) — perfectly concentric by construction, no custom-drawn circle.
+// Only rendered when the ontology declares roots.
+.tree-roots-control {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin: 0;
+    padding: 6px 8px 3px;
+    border-top: 1px solid #DFDFDF;
+    font-size: 13px;
+    line-height: 1;
+
+    .tree-roots-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        color: #737373;
+        cursor: pointer;
+
+        input[type="radio"] {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        span {
+            // Optical nudge: native radios centre on their box, but the text sits a
+            // hair lower, so drop the label 1px to line the circle up with the text.
+            position: relative;
+            top: 1px;
+        }
+
+        &:has(input:checked) {
+            color: var(--primary-color);
+        }
+    }
+}
+
 .tree-view-reuse-icon {
     display: inline;
 }

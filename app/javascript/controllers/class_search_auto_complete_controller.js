@@ -32,6 +32,10 @@ export default class extends OntoportalAutocompleteController {
             if (this.#treeModePaths()) {
                 url += "&tree_mode=paths"
             }
+            // Likewise carry the "Show full hierarchy" root mode.
+            if (this.#treeRootsFull()) {
+                url += "&tree_roots=full"
+            }
             Turbo.visit(url)
         }
     }
@@ -42,6 +46,14 @@ export default class extends OntoportalAutocompleteController {
         let frame = document.getElementById("concepts_tree_view")
         let src = frame && frame.getAttribute("src")
         return !!src && src.includes("tree_mode=paths")
+    }
+
+    // True when the class tree is showing the full hierarchy (above the ontology's
+    // declared roots). The toggle keeps tree_roots=full on the tree frame's src.
+    #treeRootsFull() {
+        let frame = document.getElementById("concepts_tree_view")
+        let src = frame && frame.getAttribute("src")
+        return !!src && src.includes("tree_roots=full")
     }
 
     onItemSelect(li) {
