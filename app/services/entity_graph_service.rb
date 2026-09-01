@@ -518,6 +518,16 @@ class EntityGraphService < ApplicationService
     []
   end
 
+  # The source ontology record for an upper ontology, memoised per acronym.
+  # find_by_acronym is an uncached HTTP GET, so without this a graph carrying N
+  # BFO terms fetched /ontologies/BFO N times (measured: 8x on a UBERON class).
+  def upper_ontology_source(acronym)
+    @upper_ontology_source ||= {}
+    @upper_ontology_source.fetch(acronym) do
+      @upper_ontology_source[acronym] = LinkedData::Client::Models::Ontology.find_by_acronym(acronym).first
+    end
+  end
+
   # For an upper-ontology (BFO/COB) term, fetch its AUTHORITATIVE label, definition and
   # examples from the source ontology (so a graph that only imported the bare term can
   # still show real details, attributed). Returns a hash { source:, label:, definition:,
@@ -531,7 +541,7 @@ class EntityGraphService < ApplicationService
     return cache[class_id] if cache.key?(class_id)
 
     cache[class_id] = begin
-      src = LinkedData::Client::Models::Ontology.find_by_acronym(onto[:acronym]).first
+      src = upper_ontology_source(onto[:acronym])
       cls = src && src.explore.single_class({ display: 'prefLabel,definition,synonym,properties' }, class_id)
       if cls && !(cls.respond_to?(:errors) && cls.errors.present?)
         {
