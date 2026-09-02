@@ -122,6 +122,13 @@ class EntityGraphService < ApplicationService
         upper: nil
       })
       node[:selected] = true if is_root
+      # A node can be created before its real label is known: a relationship filler
+      # whose label fetch fell past MAX_FILLER_FETCHES is created with the IRI-tail
+      # fallback, and its true prefLabel only arrives later — the filler is the leaf of
+      # its own paths_to_root, ingested in step 2. Upgrade the placeholder when that
+      # happens, the way definition/examples/synonyms already do below; otherwise the
+      # node renders for good as e.g. "UBERON_0002101" instead of "limb".
+      node[:label] = label if label.present? && node[:label] == @helpers.link_last_part(id)
       node[:definition] = definition if definition.present? && node[:definition].blank?
       node[:examples] = Array(examples) if Array(examples).present? && node[:examples].blank?
       node[:synonyms] = Array(synonyms) if Array(synonyms).present? && node[:synonyms].blank?
